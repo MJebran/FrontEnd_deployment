@@ -1,50 +1,98 @@
-# React + TypeScript + Vite
+# Class Instructions
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Get on Class Server
 
-Currently, two official plugins are available:
+- **Tailscale Invite:** [Click Here](https://login.tailscale.com/admin/invite/H7DGph6CazL)
+- **IP Address:** `144.17.92.21` or your tailscales ip alex-server-1
+- **Username:** Same as last semester.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Steps to Follow
 
-## Expanding the ESLint configuration
+1. **Create a Public GitHub Repo:**
+   - Go to GitHub and create a new repository.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+2. **Initialize Vite Project:**
+   - Run the following command in your local machine within the repository:
+     ```bash
+     npm create vite@latest
+     ```
+   - Push the Vite project to your GitHub repository.
+3. **Setup Docker Files:**
+   **Location of files**
+  ```plaintext
+  
+     ├── public/
+     ├── src/
+     ├── .dockerignore
+     ├── .gitignore
+     ├── Dockerfile
+     ├── README.md
+     ├── eslint.config.js
+     ├── index.html
+     ├── package-lock.json
+     ├── package.json
+     ├── tsconfig.app.json
+     ├── tsconfig.json
+     ├── tsconfig.node.json
+     └── vite.config.ts
+  ```
+   - Create a `Dockerfile` in your project directory with the following content(sister to pageke.json file):
 
-- Configure the top-level `parserOptions` property like this:
+     ```Dockerfile
+     FROM node:20 as build
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+     WORKDIR /app
+     COPY package*.json ./
+     RUN npm install
+     COPY . .
+     RUN npm run build
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+     FROM nginx:alpine
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+     RUN rm -rf /usr/share/nginx/html/*
+     COPY --from=build /app/dist /usr/share/nginx/html
+     EXPOSE 80
+     CMD ["nginx", "-g", "daemon off;"]
+     ```
+   - Create a `.dockerignore` file with the following content(sister to pageke.json file):
+     ```plaintext
+     build/
+     dist/
+     node_modules/
+     README.md
+     .gitignore
+     Dockerfile
+     ```
+   - Push the Docker-related files to your GitHub repository.
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+5. **Clone the Repo on Class Machines:**
+   - SSH to the `alex` server.
+   - Clone your GitHub repository by running:
+     ```bash
+     git clone https://github.com/MJebran/FrontEnd_deployment.git
+     ```
+   - Navigate to the project directory:
+     ```bash
+     cd FrontEnd_deployment/
+     ```
+
+6. **Build and Run Docker Container:**
+   - Build the Docker image:
+     ```bash
+     docker build -t mustafa .
+     ```
+   - Run the Docker container:
+     ```bash
+     docker run -it --rm -p 0.0.0.0:8288:80 mustafa
+     ```
+
+7. **Access Your Project:**
+   - Access the project via the following URL: 
+     ``` 
+     http://144.17.92.21:8288/
+     ```
+
+8. **Modify for Your Setup:**
+   - Replace `mustafa` with your username.
+   - Choose a different port number instead of `8288`.
+   - Use the Tailscale IP since you are not on the school network.
